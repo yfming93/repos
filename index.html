@@ -1,0 +1,386 @@
+     
+<br><br><br>
+<div class="wrapper" style=" text-align:center;">
+<span >
+    <a href="https://www.yfmingo.cn/">
+        <span style="color:#003399;" >
+            <big><marquee>点击返回： Fleeming's Blog </marquee></big>
+        </span>
+    </a>
+</span>
+</div>   
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml">
+<head>
+<title>袁凤鸣 | Github资源收集录</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="./static/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+<link rel="stylesheet" href="static/css/common.css">
+<!--[if IE 7.0]>  
+  <link rel="stylesheet" href="./static/font-awesome/css/font-awesome-ie7.min.css">  
+< ![endif]-->  
+<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.min.js"></script>
+<script src="js/github_repos_list.js"></script>
+
+</script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script type="text/javascript"> 
+
+
+
+$(document).ready(function(){
+
+    function getRepoHTML(repo){
+        var url;
+        if (!repo || !repo.name) {
+            return "";
+        }
+
+        if (repo.url && repo.url != '') {
+            url = repo.url;
+        } else if (repo.owner && repo.owner != ''){
+            url = 'https://github.com/' + repo.owner + '/' + repo.name;
+        } else {
+            url = 'https://github.com/search?q=' + repo.name;
+        }
+
+        // var  previewTitle = ""; previewClass = "";
+        // if ( repo.preview ) {
+        //     previewTitle =  "  预览";
+        //     previewClass =  "icon-picture";
+        // }
+
+        return '<tr id="' + repo.name + '_' + repo.name + '"" repo="' + repo.name + '" owner="' + repo.owner + '">' +
+        '<td><i class="icon-link"></i><a href="' + url + '" target="_blank"> ' + repo.name +'</a></td>' + 
+        // '<td><a class="menu"><i class="'+previewClass+'"></i>' + previewTitle + '<img src="' +repo.preview+ '" /></a></td>' +
+        '<td></td>' +
+        '<td><img src="static/images/loading.gif" width="15" height="15"></td>' +
+        '<td><span>' + repo.desc + '</span></td>' + 
+        '<td></td>' +
+        '<td><i class="icon-star-empty"></i>  <img src="static/images/loading.gif" width="15" height="15"></td>' +
+        '<td><i class="icon-code-fork"></i> <img src="static/images/loading.gif" width="15" height="15"></td>' +
+        '</tr>';
+    }
+    
+    function getMinorHTML(minor){
+        var inner = "";
+        if(!minor) {
+            return inner;
+        }
+        if (!minor.list){
+            return '<table class="table table-hover">' +
+                '<colgroup> <col width="18%" /><col width="8%" /><col width="10%" /><col width="46%" /><col width="2%" /><col width="8%" /><col width="6%" />' +
+                '</colgroup>' +
+                '<thead>' +
+                '</thead>' +
+               '<tbody>' +
+               getRepoHTML(minor)+ 
+               '</tbody>' +
+            '</table>';
+        }
+        for(var i=0; i<minor.list.length; i++){
+            var repo = minor.list[i];
+            inner += getRepoHTML(repo);
+        }
+        return  '<div class="list-box">' +
+                    '<div class="list-box-heading">' +
+                        '<a onclick="javascript:">' + minor.name + '<i class="icon-angle-up"></i></a>' +
+                    '</div>' +
+                    '<div class="list-box-inner-wrap" style="height: auto;">' +
+                        '<div class="list-box-inner">' +
+                           '<table class="table table-hover">' +
+                                '<colgroup> <col width="18%" /><col width="8%" /><col width="10%" /><col width="46%" /><col width="2%" /><col width="8%" /><col width="6%" />' +
+                                '</colgroup>' +
+                                '<thead>' +
+                                '</thead>' +
+                               '<tbody>' +
+                               inner + 
+                               '</tbody>' +
+                            '</table>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+    }
+    
+    function getMajorHTML(major){
+        var inner = "";
+        for(var i=0; i<major.list.length; i++){
+            var minor = major.list[i];
+            inner += getMinorHTML(minor);
+        }
+        return '<div class="list-box">' +
+            '<div class="list-box-heading">' +
+                '<a >' + major.name + '<i class="icon-angle-up"></i></a>' +
+            '</div>' +
+            '<div class="list-box-inner-wrap" style="height: auto;">' +
+                '<div class="list-box-inner">' +
+                inner + 
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+    
+    function getListHTML(list) {
+        var inner = "";
+        for(var i=0; i<list.length; i++){
+            var major = list[i];
+            inner += getMajorHTML(major);
+        }
+        return '<div id="fix-top-header">' + 
+            '<div id="fix-top-inner">' + githubHeaderTitle + '</div>' + 
+            '<div id="fix-top-action">' + 
+                '<a href="#" id="action-expand-all">全部展开</a>' + 
+                    "&nbsp;&nbsp;" +
+                '<a href="#" id="action-collapse-all">全部折叠</a>' +
+            '</div>' +
+        '</div>' +
+        inner;
+    }
+    
+    var html = getListHTML(githubList);
+    $(".list")[0].innerHTML = html;
+    
+
+    function toggleBox(head){
+        $(head).parent().next(".list-box-inner-wrap").first().animate({height: 'toggle', opacity: 'toggle'}, "fast");
+        var className = $(head).find("i")[0].className;
+        if(className == "icon-angle-up") className = "icon-angle-down";
+        else if(className == "icon-angle-down") className = "icon-angle-up";
+        $(head).find("i")[0].className = className;
+    }
+    
+    function _toggleBox(head){
+        return function(){toggleBox(head);};
+    }
+    
+    function expandAll(){
+        var time = 0;
+        var list = $(".list-box-heading a");
+        for (var i=0; i<list.length; i++){
+            var head = list[i];
+            if(! $(head).parent().next(".list-box-inner-wrap").first().is(':visible')) {
+                setTimeout(_toggleBox(head),time);
+                time += 20;
+            }
+        }
+    }
+    
+    function collapseAll(){
+        var time = 0;
+        var list = $(".list-box-heading a");
+        for (var i=0; i<list.length; i++){
+            var head = list[i];
+            if($(head).parent().next(".list-box-inner-wrap").first().is(':visible')) {
+                setTimeout(_toggleBox(head),time);
+                time += 20;
+            }
+        }
+    }
+    
+    $(".list-box-heading a").click(function(){
+        toggleBox(this);
+    });
+    $("#action-expand-all").click(function(){
+        expandAll();
+    });
+    $("#action-collapse-all").click(function(){
+        collapseAll();
+    });
+    setTimeout(collapseAll,100);
+    
+    
+    function getStars(page) {
+        $.getJSON('https://api.github.com/users/yfming93/starred?access_token=6e269311ab2ddb7226e13d693d541884d33b107e&page=' + page + '&per_page=100',function(result){
+            $.each(result, function(i, repo){
+                try {
+                    var repo_id = repo.name + '_' + repo.name;
+                    if ( repo.name == 'Underscore.m') {
+                        alert(repo.name + "s:" + repo.stargazers_count + "zuoz:" + repo.owner.login);
+                    }
+
+                    $('#' + repo_id + ' td')[0].innerHTML = '<i class="icon-link"></i><a href="' + repo.html_url  + '" target="_blank"> ' + repo.name +'</a>'
+                    $('#' + repo_id + ' td')[1].innerHTML = '<a href="' + repo.owner.html_url + '" target="_blank"> ' + repo.owner.login +'</a>'
+                    $('#' + repo_id + ' td')[2].innerHTML = repo.pushed_at.substring(0,10);
+                    $('#' + repo_id + ' td')[5].innerHTML = '<i class="icon-star-empty"></i>'+ ' ' + repo.stargazers_count;
+                    $('#' + repo_id + ' td')[6].innerHTML = '<i class="icon-code-fork"></i>' + ' ' + repo.forks_count;
+                }
+                catch(err) {
+                }
+            });
+            page--;
+            if(page > 0) getStars(page);
+        });
+    }
+
+    function getAllStars() {
+        var totalStarNeeded = $(".icon-star-empty").length;
+
+        getStars(Math.ceil(totalStarNeeded / 100));
+    }
+    setTimeout(getAllStars,200);
+
+    function getElementTop(element){
+        var actualTop = element.offsetTop;
+        var current = element.offsetParent;
+        while (current !== null){
+            actualTop += current.offsetTop;
+            current = current.offsetParent;
+        }
+        return actualTop;
+    }
+    
+    $(".scroll-top").click(function (){
+          $("html,body").animate({ scrollTop:0},"slow");
+    });
+
+    $(window).scroll(function (){
+        var headers = $(".list-box-heading a");
+        var y = window.pageYOffset;
+        
+        if (y > 100) {
+            $(".scroll-top").show();
+        } else {
+            $(".scroll-top").hide();
+        }
+        
+        if (y < 35) {
+            $("#fix-top-inner")[0].innerHTML = githubHeaderTitle;
+            return;
+        }
+        var curHeader;
+        for(var i=0; i<headers.length; i++){
+            var header = headers[i];
+            if (! $(header).is(':visible')){
+                continue;
+            }
+            if (getElementTop(header) <= y + 35){
+                if (!curHeader) {
+                    curHeader = header;
+                } else {
+                    if (getElementTop(header) >= getElementTop(curHeader)) {
+                        curHeader = header;
+                    }
+                }
+            }
+        }
+        if(!curHeader){
+            return;
+        }
+        var inner;
+        if(typeof curHeader.textContent == "string") {
+            inner = curHeader.textContent;
+        } else {
+            inner = curHeader.innerText;
+        }
+        $("#fix-top-inner")[0].innerHTML = inner;
+    });
+});
+
+</script>
+
+</head>
+
+<body>
+    <div class="list"></div>
+    <span style="color:#C2C2C2;">Tips：首次加载前几秒可能会卡顿，因为需大量请求 Github API 获取我 star 过的每个仓库的基础信息（star、fork、作者、时间等等）</span>
+    <div class="scroll-top" style="display:none;"> <i class="icon-angle-up">↑</i></div>
+    <p></p>
+        <div class="wrapper" style=" text-align:center;">     
+            <span >
+                <a target="_blank" href= "https://www.yfmingo.cn/">
+                    <span style="color:#003399;" class="fa-stack fa-lg" >
+                        <i class="fa fa-circle fa-stack-2x" > </i>
+                        <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                <a target="_blank" href="https://www.zhihu.com/people/yfmingo">
+                    <span style="color:#003399;" class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa  fa-stack-1x fa-inverse">知</i>
+                    </span>
+                </a>
+
+                <a target="_blank" href="https://weibo.com/yfming">
+                    <span style="color:#003399;" class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+          
+                <a target="_blank" href="https://github.com/yfming93">
+                    <span style="color:#003399;" class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+        
+                <a target="_blank" href="https://music.163.com/#/user/home?id=278546999">
+                    <span style="color:#003399;" class="fa-stack fa-lg">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-music fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+
+                <a target="_blank" href="https://yfming93.coding.me/repos/">
+                    <span style="color:#003399;" class="fa-stack fa-lg">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-heart fa-stack-1x fa-inverse"></i>  
+                    </span>
+                </a>
+               <p>
+           
+                <span id="busuanzi_container_site_pv">
+                    本页面总访问量<span id="busuanzi_value_site_pv"></span>次
+                </span>
+               </p>
+
+
+                <div class="text" style=" text-align:center;">
+                    Copyright &copy; 袁凤鸣 2019
+                </div>
+
+ 
+            </span>
+        <!-- </p> -->
+    </div>
+
+<!-- disqus start -->
+
+<h4 style="margin: 0 100px 0 100px">科学上网后才可看评论哦😆</h4>
+<div id="disqus_thread" style="margin: 0 100px 0 100px"></div>
+<script>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+
+var disqus_config = function () {
+    this.page.url = "https://yfming93.coding.me/repos/#";  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = "https://yfming93.coding.me/repos/#"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+
+(function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://yfmingo.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>                            
+<!-- disqus end -->
+
+<!-- // 百度统计代码 start -->
+ <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?1b99a6addc30aac294cc600d2664427c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+<!-- // 百度统计代码 end -->
+</body>
+</html>
