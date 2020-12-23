@@ -9,4 +9,4 @@
 ![](https://yfmingo.oss-cn-beijing.aliyuncs.com/images/20201222153813.png)
 
 **GIF效果：**
-![](https://yfmingo.oss-cn-beijing.aliyuncs.com/images/repos.gif)
+![](https://yfmingo.oss-cn-beijing.aliyuncs.com/images/repo2.gif)
